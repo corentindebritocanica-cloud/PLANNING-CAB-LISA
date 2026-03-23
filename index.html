@@ -2,105 +2,255 @@
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Alignement A4 - iPhone 16</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Test Compatibilité - Solo</title>
     <style>
-        body, html {
+        :root {
+            --primary: #ff4757;
+            --bg: #fdfdfd;
+            --card: #ffffff;
+            --text: #2f3542;
+            --border: #dfe4ea;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
             margin: 0;
-            padding: 0;
+            padding: 15px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            -webkit-font-smoothing: antialiased;
+        }
+        .container {
+            background: var(--card);
+            padding: 30px 20px;
+            border-radius: 20px;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.08);
             width: 100%;
-            height: 100%;
+            max-width: 400px;
+            text-align: center;
+            box-sizing: border-box;
+        }
+        h1 { color: var(--primary); font-size: 1.5rem; margin-bottom: 10px; }
+        h2 { font-size: 1.1rem; margin-bottom: 25px; line-height: 1.4; }
+        input[type="text"] {
+            width: 100%;
+            padding: 15px;
+            margin: 10px 0 20px 0;
+            border: 2px solid var(--border);
+            border-radius: 12px;
+            font-size: 16px;
+            box-sizing: border-box;
+            outline: none;
+            -webkit-appearance: none;
+        }
+        input[type="text"]:focus { border-color: var(--primary); }
+        .btn {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            padding: 16px;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            width: 100%;
+            margin-bottom: 10px;
+            -webkit-appearance: none;
+        }
+        .btn-outline {
+            background-color: transparent;
+            color: var(--primary);
+            border: 2px solid var(--primary);
+        }
+        .hidden { display: none !important; }
+        
+        /* Options de réponse adaptées au tactile */
+        .options {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        .option-btn {
+            background-color: #f8f9fa;
+            border: 2px solid var(--border);
+            padding: 16px;
+            border-radius: 12px;
+            cursor: pointer;
+            font-size: 15px;
+            text-align: left;
+            -webkit-tap-highlight-color: transparent;
+            transition: background-color 0.1s;
+        }
+        .option-btn:active { background-color: #ffeaa7; border-color: var(--primary); }
+        
+        .progress-bar {
+            width: 100%;
+            background-color: var(--border);
+            border-radius: 10px;
+            height: 8px;
+            margin-bottom: 15px;
             overflow: hidden;
-            background-color: #fff;
         }
-
-        #app-container {
-            position: relative;
-            width: 100vw;
-            height: 100vh;
-        }
-
-        video {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
+        .progress {
             height: 100%;
-            object-fit: cover;
-            z-index: 1;
+            background-color: var(--primary);
+            width: 0%;
+            transition: width 0.3s ease;
         }
-
-        svg {
-            position: absolute;
-            top: 0;
-            left: 0;
+        .export-box {
             width: 100%;
-            height: 100%;
-            z-index: 10;
-            pointer-events: none;
-        }
-
-        /* Style pour les repères d'alignement visuels */
-        .guide-rect {
-            fill: none;
-            stroke: red;
-            stroke-width: 0.8;
+            height: 120px;
+            margin: 15px 0;
+            padding: 10px;
+            border: 1px dashed #a4b0be;
+            border-radius: 8px;
+            font-family: monospace;
+            font-size: 12px;
+            color: #57606f;
+            resize: none;
+            box-sizing: border-box;
+            background: #f1f2f6;
         }
     </style>
 </head>
 <body>
 
-<div id="app-container">
-    <video id="webcam" autoplay playsinline></video>
-    
-    <svg viewBox="0 0 100 100" preserveAspectRatio="none">
-        <defs>
-            <mask id="hole-mask">
-                <rect width="100" height="100" fill="white" />
-                
-                <circle cx="35" cy="40" r="3" fill="black" />
-                <circle cx="65" cy="40" r="3" fill="black" />
-                <circle cx="35" cy="60" r="3" fill="black" />
-                <circle cx="65" cy="60" r="3" fill="black" />
-
-                <rect x="80" y="5" width="10" height="10" fill="black" /> <rect x="10" y="85" width="10" height="10" fill="black" /> </mask>
-        </defs>
+<div class="container" id="app">
+    <div id="screen-welcome">
+        <h1>❤️ Test de Couple</h1>
+        <p style="color: #747d8c; font-size: 0.9rem; margin-bottom: 30px;">Répondez honnêtement aux 100 questions. Personne ne regarde !</p>
         
-        <rect width="100" height="100" fill="white" mask="url(#hole-mask)" />
+        <div style="text-align: left;">
+            <label style="font-weight: bold; color: var(--text); font-size: 0.9rem;">Votre Prénom :</label>
+            <input type="text" id="playerName" placeholder="Ex: Alex">
+        </div>
 
-        <rect x="80" y="5" width="10" height="10" class="guide-rect" />
-        <rect x="10" y="85" width="10" height="10" class="guide-rect" />
-    </svg>
+        <button class="btn" onclick="startQuiz('Elle')">Je suis Elle 👩</button>
+        <button class="btn btn-outline" onclick="startQuiz('Lui')">Je suis Lui 👨</button>
+    </div>
+
+    <div id="screen-question" class="hidden">
+        <div class="progress-bar"><div class="progress" id="progress"></div></div>
+        <p id="question-counter" style="color: #a4b0be; font-size: 0.8rem; font-weight: bold; margin: 0 0 5px 0; text-transform: uppercase;"></p>
+        <h2 id="question-text">Question</h2>
+        <div class="options">
+            <button class="option-btn" onclick="answer(1)">1 - Pas du tout d'accord</button>
+            <button class="option-btn" onclick="answer(2)">2 - Plutôt pas d'accord</button>
+            <button class="option-btn" onclick="answer(3)">3 - Neutre / Ça dépend</button>
+            <button class="option-btn" onclick="answer(4)">4 - Plutôt d'accord</button>
+            <button class="option-btn" onclick="answer(5)">5 - Tout à fait d'accord</button>
+        </div>
+    </div>
+
+    <div id="screen-export" class="hidden">
+        <h1>🎉 C'est fini !</h1>
+        <p>Génial, vos réponses sont enregistrées. Copiez le code ci-dessous ou téléchargez le fichier, et envoyez-le à l'IA pour l'analyse croisée !</p>
+        
+        <textarea id="export-data" class="export-box" readonly></textarea>
+        
+        <button class="btn" onclick="copyData()" id="copy-btn">📋 Copier mes réponses</button>
+        <button class="btn btn-outline" onclick="downloadData()">💾 Télécharger le fichier</button>
+    </div>
 </div>
 
 <script>
-    const video = document.getElementById('webcam');
+    const rawQuestions = [
+        "J'aime que la maison soit toujours parfaitement rangée.", "Je préfère planifier mes week-ends à l'avance plutôt que d'improviser.", "La répartition des tâches ménagères doit être du 50/50 strict.", "J'ai besoin d'avoir des moments de solitude réguliers.", "Je préfère les soirées tranquilles à la maison plutôt que sortir en boîte.", "Le petit-déjeuner au lit est quelque chose que j'adore.", "Je suis plutôt du matin que du soir.", "Laver la vaisselle immédiatement après manger est important pour moi.", "J'aime inviter des amis à la maison souvent.", "Avoir des animaux de compagnie dans la maison est indispensable.", "Je préfère cuisiner plutôt que commander à manger.", "Passer du temps sur les réseaux sociaux tous les jours me détend.", "J'aime qu'on s'endorme en même temps le soir.", "Je suis très ponctuel(le) aux rendez-vous.", "Regarder une série ensemble est un vrai moment de couple.", "Je laisse souvent traîner mes affaires.", "Je préfère prendre des douches rapides que de longs bains.", "Le bricolage et les réparations à la maison, c'est mon truc.", "J'ai du mal à me lever sans avoir mis plusieurs alarmes.", "La température de la chambre doit être plutôt fraîche pour dormir.",
+        "Je veux me marier un jour.", "Je souhaite avoir des enfants (ou d'autres enfants si j'en ai déjà).", "Je suis prêt(e) à déménager à l'étranger pour la carrière de mon partenaire.", "Acheter une maison est un de mes objectifs principaux.", "Je préfère investir dans des voyages plutôt que dans du matériel.", "Je me vois bien vieillir à la campagne plutôt qu'en ville.", "La réussite professionnelle est plus importante que le temps libre.", "Je veux changer de métier ou reprendre des études un jour.", "Avoir une résidence secondaire serait un rêve.", "Je pense qu'il faut se concentrer sur le présent, l'avenir on verra.", "L'adoption est une option que j'envisagerais.", "Je suis très attaché(e) à la ville où je vis actuellement.", "Faire le tour du monde un jour fait partie de ma bucket list.", "Je prévois de prendre ma retraite le plus tôt possible.", "La stabilité de l'emploi est essentielle pour moi.", "Je suis prêt(e) à faire de gros sacrifices pour réaliser nos rêves.", "Je souhaite que l'on monte un projet ou une entreprise ensemble.", "Je pense souvent à comment sera notre vie dans 10 ans.", "Le mariage est pour moi le symbole ultime de l'engagement.", "Garder une part d'indépendance totale dans le futur est vital.",
+        "Je suis quelqu'un d'économe, je mets de côté tous les mois.", "Nous devrions avoir un compte bancaire commun pour tout partager.", "Je n'ai aucun problème à parler de mon salaire et de mes dettes.", "Acheter des vêtements ou des objets de marque est important pour moi.", "Je pense qu'il faut profiter de son argent aujourd'hui au lieu de tout épargner.", "Le partenaire qui gagne le plus devrait payer plus pour les dépenses communes.", "Emprunter de l'argent à la famille est inacceptable pour moi.", "Je tiens un budget strict de mes dépenses.", "Faire des cadeaux chers est une belle preuve d'amour.", "Je préfère les vacances de luxe aux vacances en sac à dos.", "L'argent est souvent une source de stress pour moi.", "Je suis prêt(e) à soutenir financièrement mon partenaire s'il reprend ses études.", "Les investissements risqués (crypto, bourse) m'intéressent.", "J'ai du mal à me contrôler face à un achat impulsif.", "Les dettes (crédits à la consommation) ne me font pas peur.", "C'est normal de cacher quelques petits achats à son partenaire.", "Un contrat de mariage (séparation de biens) est une bonne chose.", "L'argent ne fait pas le bonheur.", "Je préfère payer le restaurant lors d'un rendez-vous.", "L'éducation financière des enfants est une priorité absolue.",
+        "La religion ou la spiritualité a une place importante dans ma vie.", "Mes convictions politiques sont très ancrées.", "Je pourrais être avec quelqu'un qui a des opinions politiques opposées aux miennes.", "La famille passe toujours avant les amis.", "Le respect des traditions familiales est essentiel à mes yeux.", "Je suis très sensible à la cause écologique au quotidien.", "Je pardonne facilement une trahison.", "L'honnêteté est plus importante que la politesse pour éviter de blesser.", "Garder le contact avec ses ex est tout à fait sain et normal.", "Je crois en la notion d'âme sœur.", "L'éducation stricte est la meilleure pour les enfants.", "Les rôles traditionnels homme/femme dans le couple me rassurent.", "Je suis tolérant(e) face aux opinions qui me choquent.", "Aider les autres (bénévolat, charité) est un devoir.", "Je crois au karma : on récolte ce que l'on sème.", "Mentir par omission est quand même un mensonge.", "Je ne garde pas de rancune après une dispute.", "Le succès se mesure par l'impact qu'on a sur les autres, pas par l'argent.", "La politesse envers les inconnus est un critère pour juger quelqu'un.", "Faire des compromis sur ses valeurs fondamentales est parfois nécessaire en couple.",
+        "Les petits gestes d'affection en public (se tenir la main, s'embrasser) sont importants.", "Pour moi, la communication sexuelle doit être ouverte et sans tabou.", "Faire l'amour plusieurs fois par semaine est l'idéal.", "Les mots doux et les compliments me touchent plus que les cadeaux physiques.", "Je suis très câlin(e) au quotidien.", "Je préfère prendre l'initiative des moments intimes.", "Essayer de nouvelles choses au lit est excitant.", "L'intimité émotionnelle (se confier) est plus importante que l'intimité physique.", "Je suis souvent jaloux/jalouse.", "Avoir des secrets pour son partenaire est normal.", "Je me sens aimé(e) quand mon partenaire me rend service (faire le plein, cuisiner).", "Faire chambre à part occasionnellement ne me dérange pas.", "La routine dans l'intimité finit par tuer le désir.", "Je suis à l'aise avec mon corps.", "Regarder des films pour adultes dans le couple est acceptable.", "Passer du temps de qualité à discuter chaque soir est mon langage de l'amour.", "Je dis 'Je t'aime' très facilement.", "Le contact physique constant (être collés sur le canapé) m'étouffe un peu.", "Une baisse de désir passagère est normale et ne me stresse pas.", "La confiance absolue est la base de mon épanouissement sexuel."
+    ];
 
-    async function initCamera() {
-        try {
-            const constraints = {
-                video: {
-                    facingMode: "environment",
-                    width: { ideal: 1920 },
-                    height: { ideal: 1080 }
-                },
-                audio: false
-            };
-            
-            const stream = await navigator.mediaDevices.getUserMedia(constraints);
-            video.srcObject = stream;
-        } catch (err) {
-            alert("Erreur caméra : Vérifiez que vous êtes en HTTPS et que l'accès est autorisé.");
+    let currentQuestion = 0;
+    let myAnswers = [];
+    let myName = "";
+    let myRole = "";
+
+    function startQuiz(role) {
+        let nameInput = document.getElementById('playerName').value.trim();
+        if(!nameInput) {
+            alert("S'il te plaît, entre ton prénom avant de commencer !");
+            return;
+        }
+        myName = nameInput;
+        myRole = role;
+        
+        document.getElementById('screen-welcome').classList.add('hidden');
+        document.getElementById('screen-question').classList.remove('hidden');
+        
+        // Scroll en haut au cas où
+        window.scrollTo(0, 0);
+        showQuestion();
+    }
+
+    function showQuestion() {
+        document.getElementById('question-counter').innerText = `Question ${currentQuestion + 1} / 100`;
+        document.getElementById('question-text').innerText = rawQuestions[currentQuestion];
+        
+        const progress = (currentQuestion / 100) * 100;
+        document.getElementById('progress').style.width = progress + '%';
+    }
+
+    function answer(val) {
+        myAnswers.push(val);
+        currentQuestion++;
+
+        if(currentQuestion < 100) {
+            showQuestion();
+        } else {
+            finishQuiz();
         }
     }
 
-    window.addEventListener('load', initCamera);
+    function finishQuiz() {
+        document.getElementById('screen-question').classList.add('hidden');
+        document.getElementById('screen-export').classList.remove('hidden');
+        
+        let finalData = {
+            prenom: myName,
+            role: myRole,
+            reponses: myAnswers
+        };
+        
+        // Formater en JSON propre pour le copier/coller
+        document.getElementById('export-data').value = JSON.stringify(finalData);
+    }
 
-    // Empêcher le zoom tactile
-    document.addEventListener('touchstart', (e) => {
-        if (e.touches.length > 1) e.preventDefault();
-    }, { passive: false });
+    function copyData() {
+        let textarea = document.getElementById('export-data');
+        textarea.select();
+        textarea.setSelectionRange(0, 99999); // Pour mobile
+        navigator.clipboard.writeText(textarea.value).then(() => {
+            let btn = document.getElementById('copy-btn');
+            btn.innerText = "✅ Copié !";
+            btn.style.backgroundColor = "#2ed573";
+            setTimeout(() => {
+                btn.innerText = "📋 Copier mes réponses";
+                btn.style.backgroundColor = "var(--primary)";
+            }, 2000);
+        }).catch(err => {
+            alert("Erreur lors de la copie, merci de copier le texte manuellement.");
+        });
+    }
+
+    function downloadData() {
+        let dataStr = document.getElementById('export-data').value;
+        let blob = new Blob([dataStr], { type: "text/plain" });
+        let url = URL.createObjectURL(blob);
+        
+        let a = document.createElement('a');
+        a.href = url;
+        a.download = `Resultats_Test_${myName}_${myRole}.txt`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+    }
 </script>
-
 </body>
 </html>
