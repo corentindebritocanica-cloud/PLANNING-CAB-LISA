@@ -1,256 +1,1218 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Test Compatibilité - Solo</title>
-    <style>
-        :root {
-            --primary: #ff4757;
-            --bg: #fdfdfd;
-            --card: #ffffff;
-            --text: #2f3542;
-            --border: #dfe4ea;
-        }
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            background-color: var(--bg);
-            color: var(--text);
-            margin: 0;
-            padding: 15px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-            -webkit-font-smoothing: antialiased;
-        }
-        .container {
-            background: var(--card);
-            padding: 30px 20px;
-            border-radius: 20px;
-            box-shadow: 0 8px 30px rgba(0,0,0,0.08);
-            width: 100%;
-            max-width: 400px;
-            text-align: center;
-            box-sizing: border-box;
-        }
-        h1 { color: var(--primary); font-size: 1.5rem; margin-bottom: 10px; }
-        h2 { font-size: 1.1rem; margin-bottom: 25px; line-height: 1.4; }
-        input[type="text"] {
-            width: 100%;
-            padding: 15px;
-            margin: 10px 0 20px 0;
-            border: 2px solid var(--border);
-            border-radius: 12px;
-            font-size: 16px;
-            box-sizing: border-box;
-            outline: none;
-            -webkit-appearance: none;
-        }
-        input[type="text"]:focus { border-color: var(--primary); }
-        .btn {
-            background-color: var(--primary);
-            color: white;
-            border: none;
-            padding: 16px;
-            border-radius: 12px;
-            font-size: 16px;
-            font-weight: bold;
-            cursor: pointer;
-            width: 100%;
-            margin-bottom: 10px;
-            -webkit-appearance: none;
-        }
-        .btn-outline {
-            background-color: transparent;
-            color: var(--primary);
-            border: 2px solid var(--primary);
-        }
-        .hidden { display: none !important; }
-        
-        /* Options de réponse adaptées au tactile */
-        .options {
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-        }
-        .option-btn {
-            background-color: #f8f9fa;
-            border: 2px solid var(--border);
-            padding: 16px;
-            border-radius: 12px;
-            cursor: pointer;
-            font-size: 15px;
-            text-align: left;
-            -webkit-tap-highlight-color: transparent;
-            transition: background-color 0.1s;
-        }
-        .option-btn:active { background-color: #ffeaa7; border-color: var(--primary); }
-        
-        .progress-bar {
-            width: 100%;
-            background-color: var(--border);
-            border-radius: 10px;
-            height: 8px;
-            margin-bottom: 15px;
-            overflow: hidden;
-        }
-        .progress {
-            height: 100%;
-            background-color: var(--primary);
-            width: 0%;
-            transition: width 0.3s ease;
-        }
-        .export-box {
-            width: 100%;
-            height: 120px;
-            margin: 15px 0;
-            padding: 10px;
-            border: 1px dashed #a4b0be;
-            border-radius: 8px;
-            font-family: monospace;
-            font-size: 12px;
-            color: #57606f;
-            resize: none;
-            box-sizing: border-box;
-            background: #f1f2f6;
-        }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>PsyAgenda — Emploi du temps</title>
+<style>
+  :root {
+    --bg: #F8F6F3;
+    --surface: #FFFFFF;
+    --surface2: #F0EDE8;
+    --border: #E2DDD8;
+    --text: #1E2B3C;
+    --text-muted: #6B7A8D;
+    --nav-bg: #1E2B3C;
+    --nav-text: #E8E4DF;
+    --accent: #1E2B3C;
+    --adulte: #E8826A;
+    --adulte-light: #FDF0EC;
+    --ado: #9B8EC4;
+    --ado-light: #F3F0FB;
+    --enfant: #7BB89A;
+    --enfant-light: #EEF7F3;
+    --icv: #F0A050;
+    --icv-light: #FEF5E8;
+    --perso: #8B9BB4;
+    --perso-light: #EEF1F6;
+    --sport: #5BB8D4;
+    --sport-light: #EAF7FB;
+    --shadow: 0 2px 12px rgba(30,43,60,0.08);
+    --radius: 10px;
+    --radius-sm: 6px;
+    --slot-height: 60px;
+    --hour-start: 7;
+    --hour-end: 21;
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { height: 100%; font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; background: var(--bg); color: var(--text); font-size: 14px; }
+
+  /* ─── LAYOUT ─────────────────────────────────────────────── */
+  #app { display: flex; height: 100vh; overflow: hidden; }
+
+  /* ─── SIDEBAR ─────────────────────────────────────────────── */
+  #sidebar {
+    width: 220px; min-width: 220px; background: var(--nav-bg); color: var(--nav-text);
+    display: flex; flex-direction: column; gap: 0; overflow-y: auto; z-index: 10;
+    flex-shrink: 0;
+  }
+  #sidebar .logo {
+    padding: 22px 20px 16px; font-size: 18px; font-weight: 700; letter-spacing: -0.5px;
+    border-bottom: 1px solid rgba(255,255,255,0.08);
+  }
+  #sidebar .logo span { color: var(--adulte); }
+  .nav-section { padding: 14px 16px 6px; font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 1.2px; color: rgba(255,255,255,0.35); }
+  .nav-btn {
+    display: flex; align-items: center; gap: 10px; padding: 9px 16px 9px 20px;
+    cursor: pointer; border-radius: 0; background: none; border: none; color: var(--nav-text);
+    font-size: 13.5px; font-family: inherit; width: 100%; text-align: left; transition: background 0.15s;
+    position: relative;
+  }
+  .nav-btn:hover { background: rgba(255,255,255,0.06); }
+  .nav-btn.active { background: rgba(255,255,255,0.1); font-weight: 600; }
+  .nav-btn.active::before {
+    content: ''; position: absolute; left: 0; top: 50%; transform: translateY(-50%);
+    width: 3px; height: 60%; background: var(--adulte); border-radius: 0 2px 2px 0;
+  }
+  .nav-icon { width: 16px; text-align: center; opacity: 0.7; }
+  .nav-badge {
+    margin-left: auto; background: rgba(255,255,255,0.12); border-radius: 20px;
+    padding: 1px 7px; font-size: 11px; font-weight: 600;
+  }
+  .nav-divider { height: 1px; background: rgba(255,255,255,0.07); margin: 8px 0; }
+  .sidebar-footer { margin-top: auto; padding: 16px; border-top: 1px solid rgba(255,255,255,0.08); }
+  .sidebar-footer .mode-toggle {
+    display: flex; gap: 6px; background: rgba(255,255,255,0.08); border-radius: 8px; padding: 4px;
+  }
+  .mode-btn {
+    flex: 1; padding: 6px; text-align: center; cursor: pointer; border-radius: 5px;
+    font-size: 12px; font-weight: 600; color: rgba(255,255,255,0.5); transition: all 0.15s;
+    border: none; background: none; font-family: inherit;
+  }
+  .mode-btn.active { background: rgba(255,255,255,0.15); color: white; }
+
+  /* ─── MAIN ─────────────────────────────────────────────────── */
+  #main { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+
+  /* ─── TOP BAR ───────────────────────────────────────────────── */
+  #topbar {
+    background: var(--surface); border-bottom: 1px solid var(--border);
+    padding: 14px 24px; display: flex; align-items: center; gap: 16px; flex-wrap: wrap;
+    flex-shrink: 0;
+  }
+  #topbar h1 { font-size: 16px; font-weight: 700; flex: 1; }
+  #topbar h1 small { font-size: 12px; font-weight: 400; color: var(--text-muted); margin-left: 8px; }
+  .btn {
+    display: inline-flex; align-items: center; gap: 6px; padding: 7px 14px;
+    border-radius: var(--radius-sm); border: 1.5px solid var(--border);
+    background: var(--surface); color: var(--text); font-size: 13px; font-weight: 500;
+    cursor: pointer; font-family: inherit; transition: all 0.15s; white-space: nowrap;
+  }
+  .btn:hover { border-color: var(--accent); background: var(--surface2); }
+  .btn-primary { background: var(--accent); color: white; border-color: var(--accent); }
+  .btn-primary:hover { background: #2c3f58; border-color: #2c3f58; }
+  .btn-sm { padding: 5px 10px; font-size: 12px; }
+  .btn-danger { border-color: #e74c3c; color: #e74c3c; }
+  .btn-danger:hover { background: #fde8e7; }
+
+  /* ─── STATS BAR ─────────────────────────────────────────────── */
+  #statsbar {
+    background: var(--surface); border-bottom: 1px solid var(--border);
+    padding: 10px 24px; display: flex; gap: 20px; align-items: center; flex-wrap: wrap;
+    flex-shrink: 0;
+  }
+  .stat-chip {
+    display: flex; align-items: center; gap: 8px; padding: 6px 12px;
+    background: var(--surface2); border-radius: 20px; font-size: 12.5px;
+  }
+  .stat-chip .dot { width: 9px; height: 9px; border-radius: 50%; flex-shrink: 0; }
+  .stat-chip strong { font-weight: 700; margin-left: 2px; }
+  .stat-chip .euro { color: var(--text-muted); font-size: 11px; margin-left: 4px; }
+  .stat-sep { width: 1px; height: 24px; background: var(--border); }
+  .stat-total { font-weight: 700; font-size: 14px; }
+  .stat-total span { color: var(--text-muted); font-weight: 400; font-size: 12px; margin-left: 4px; }
+
+  /* ─── CONTENT AREA ──────────────────────────────────────────── */
+  #content { flex: 1; overflow-y: auto; overflow-x: auto; padding: 0; }
+
+  /* ─── WEEK GRID ─────────────────────────────────────────────── */
+  #week-view { display: flex; flex-direction: column; height: 100%; }
+  .week-header {
+    display: grid; grid-template-columns: 52px repeat(5, 1fr);
+    background: var(--surface); border-bottom: 2px solid var(--border);
+    position: sticky; top: 0; z-index: 5; flex-shrink: 0;
+  }
+  .week-header .day-head {
+    padding: 12px 8px; text-align: center; font-size: 12px; font-weight: 700;
+    letter-spacing: 0.3px; color: var(--text-muted); text-transform: uppercase;
+    border-left: 1px solid var(--border);
+  }
+  .week-header .day-head.today { color: var(--adulte); }
+  .time-gutter { }
+  .week-body { display: grid; grid-template-columns: 52px repeat(5, 1fr); flex: 1; }
+  .time-col { display: flex; flex-direction: column; }
+  .time-label {
+    height: var(--slot-height); display: flex; align-items: flex-start; justify-content: flex-end;
+    padding: 4px 6px 0 0; font-size: 10.5px; color: var(--text-muted); font-weight: 500;
+    flex-shrink: 0;
+  }
+  .day-col {
+    border-left: 1px solid var(--border); display: flex; flex-direction: column;
+    position: relative;
+  }
+  .time-slot {
+    height: var(--slot-height); border-bottom: 1px solid var(--border); position: relative;
+    flex-shrink: 0; cursor: pointer; transition: background 0.1s;
+  }
+  .time-slot:hover { background: rgba(232,130,106,0.04); }
+  .time-slot.half-hour { border-bottom: 1px dashed #EAE7E2; }
+  .time-slot[data-drop-target="true"] { background: rgba(232,130,106,0.1) !important; }
+
+  /* ─── RDV CHIPS ─────────────────────────────────────────────── */
+  .rdv-chip {
+    position: absolute; left: 3px; right: 3px; border-radius: 7px;
+    padding: 5px 8px; cursor: grab; z-index: 3; overflow: hidden;
+    box-shadow: 0 1px 6px rgba(0,0,0,0.12);
+    display: flex; flex-direction: column; gap: 1px;
+    border-left: 3.5px solid transparent;
+    transition: transform 0.1s, box-shadow 0.1s;
+    user-select: none;
+  }
+  .rdv-chip:active { cursor: grabbing; transform: scale(1.02); box-shadow: 0 4px 16px rgba(0,0,0,0.18); }
+  .rdv-chip.dragging { opacity: 0.6; z-index: 100; }
+  .rdv-chip .chip-title { font-size: 11.5px; font-weight: 700; line-height: 1.2; }
+  .rdv-chip .chip-sub { font-size: 10px; opacity: 0.75; }
+  .rdv-chip .chip-del {
+    position: absolute; top: 3px; right: 4px; width: 16px; height: 16px;
+    background: rgba(0,0,0,0.15); border-radius: 50%; display: flex; align-items: center;
+    justify-content: center; font-size: 9px; cursor: pointer; opacity: 0;
+    transition: opacity 0.15s; border: none; color: inherit;
+  }
+  .rdv-chip:hover .chip-del { opacity: 1; }
+  .rdv-chip[data-type="adulte"] { background: var(--adulte-light); border-left-color: var(--adulte); color: #8B3D2A; }
+  .rdv-chip[data-type="ado"] { background: var(--ado-light); border-left-color: var(--ado); color: #4D3D7A; }
+  .rdv-chip[data-type="enfant"] { background: var(--enfant-light); border-left-color: var(--enfant); color: #2D6B50; }
+  .rdv-chip[data-type="icv"] { background: var(--icv-light); border-left-color: var(--icv); color: #8B5E1A; }
+  .rdv-chip[data-type="perso"] { background: var(--perso-light); border-left-color: var(--perso); color: #3D4F6B; }
+  .rdv-chip[data-type="sport"] { background: var(--sport-light); border-left-color: var(--sport); color: #1A617A; }
+
+  /* ─── PANELS & MODALS ──────────────────────────────────────── */
+  .overlay {
+    position: fixed; inset: 0; background: rgba(30,43,60,0.45); z-index: 50;
+    display: flex; align-items: center; justify-content: center; padding: 16px;
+  }
+  .overlay.hidden { display: none; }
+  .panel {
+    background: var(--surface); border-radius: 16px; box-shadow: 0 16px 60px rgba(0,0,0,0.2);
+    width: 100%; max-width: 420px; padding: 28px; display: flex; flex-direction: column; gap: 18px;
+    max-height: 90vh; overflow-y: auto;
+  }
+  .panel h2 { font-size: 18px; font-weight: 700; }
+  .panel-close {
+    position: absolute; top: 12px; right: 16px; background: none; border: none;
+    font-size: 22px; cursor: pointer; color: var(--text-muted); line-height: 1;
+  }
+  .form-row { display: flex; flex-direction: column; gap: 5px; }
+  .form-row label { font-size: 12px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; }
+  .form-row input, .form-row select, .form-row textarea {
+    padding: 9px 12px; border: 1.5px solid var(--border); border-radius: var(--radius-sm);
+    font-family: inherit; font-size: 14px; background: var(--surface); color: var(--text);
+    outline: none; transition: border-color 0.15s; width: 100%;
+  }
+  .form-row input:focus, .form-row select:focus { border-color: var(--accent); }
+  .type-picker { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+  .type-opt {
+    padding: 10px 6px; border-radius: 8px; text-align: center; cursor: pointer;
+    font-size: 12px; font-weight: 600; border: 2px solid transparent; transition: all 0.15s;
+  }
+  .type-opt[data-type="adulte"] { background: var(--adulte-light); color: #8B3D2A; }
+  .type-opt[data-type="ado"] { background: var(--ado-light); color: #4D3D7A; }
+  .type-opt[data-type="enfant"] { background: var(--enfant-light); color: #2D6B50; }
+  .type-opt[data-type="icv"] { background: var(--icv-light); color: #8B5E1A; }
+  .type-opt[data-type="perso"] { background: var(--perso-light); color: #3D4F6B; }
+  .type-opt[data-type="sport"] { background: var(--sport-light); color: #1A617A; }
+  .type-opt.selected[data-type="adulte"] { border-color: var(--adulte); }
+  .type-opt.selected[data-type="ado"] { border-color: var(--ado); }
+  .type-opt.selected[data-type="enfant"] { border-color: var(--enfant); }
+  .type-opt.selected[data-type="icv"] { border-color: var(--icv); }
+  .type-opt.selected[data-type="perso"] { border-color: var(--perso); }
+  .type-opt.selected[data-type="sport"] { border-color: var(--sport); }
+  .type-icon { font-size: 18px; margin-bottom: 3px; }
+  .btn-row { display: flex; gap: 10px; justify-content: flex-end; }
+  .duration-row { display: flex; gap: 8px; }
+  .dur-btn {
+    flex: 1; padding: 8px; border-radius: 6px; border: 1.5px solid var(--border);
+    background: var(--surface); cursor: pointer; font-size: 12px; font-weight: 600;
+    font-family: inherit; transition: all 0.15s;
+  }
+  .dur-btn.active { border-color: var(--accent); background: var(--accent); color: white; }
+
+  /* ─── SETTINGS PANEL ────────────────────────────────────────── */
+  .tarif-grid { display: grid; grid-template-columns: 1fr auto; gap: 8px 12px; align-items: center; }
+  .tarif-grid label { font-size: 13px; }
+  .tarif-grid input { width: 80px; text-align: right; }
+
+  /* ─── WEEK MANAGER ──────────────────────────────────────────── */
+  .week-list { display: flex; flex-direction: column; gap: 8px; }
+  .week-item {
+    display: flex; align-items: center; gap: 10px; padding: 12px 16px;
+    background: var(--surface2); border-radius: var(--radius-sm); cursor: pointer;
+    border: 1.5px solid transparent; transition: all 0.15s;
+  }
+  .week-item:hover { border-color: var(--border); }
+  .week-item.selected { border-color: var(--accent); background: white; }
+  .week-item .week-name { font-weight: 600; flex: 1; }
+  .week-item .week-label {
+    font-size: 11px; padding: 2px 8px; border-radius: 20px;
+    background: rgba(30,43,60,0.08); color: var(--text-muted);
+  }
+  .week-item .week-label.A { background: rgba(232,130,106,0.15); color: var(--adulte); }
+  .week-item .week-label.B { background: rgba(155,142,196,0.15); color: var(--ado); }
+  .week-item .week-actions { display: flex; gap: 6px; }
+
+  /* ─── GITHUB SYNC ────────────────────────────────────────────── */
+  .sync-status {
+    display: inline-flex; align-items: center; gap: 6px;
+    font-size: 12px; color: var(--text-muted);
+  }
+  .sync-dot { width: 7px; height: 7px; border-radius: 50%; background: #ccc; flex-shrink: 0; }
+  .sync-dot.ok { background: #27ae60; }
+  .sync-dot.error { background: #e74c3c; }
+  .sync-dot.loading { background: #f0a050; animation: pulse 1s infinite; }
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
+
+  /* ─── MONTH SUMMARY ─────────────────────────────────────────── */
+  #month-view { padding: 24px; }
+  .month-summary-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 16px; margin-bottom: 24px; }
+  .month-card {
+    background: var(--surface); border-radius: var(--radius); padding: 20px;
+    box-shadow: var(--shadow); border-top: 4px solid var(--border);
+  }
+  .month-card[data-type="adulte"] { border-top-color: var(--adulte); }
+  .month-card[data-type="ado"] { border-top-color: var(--ado); }
+  .month-card[data-type="enfant"] { border-top-color: var(--enfant); }
+  .month-card[data-type="icv"] { border-top-color: var(--icv); }
+  .month-card .mc-label { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px; color: var(--text-muted); margin-bottom: 8px; }
+  .month-card .mc-count { font-size: 32px; font-weight: 800; line-height: 1; }
+  .month-card .mc-sub { font-size: 12px; color: var(--text-muted); margin-top: 4px; }
+  .month-projection { background: var(--surface); border-radius: var(--radius); padding: 20px; box-shadow: var(--shadow); }
+  .month-projection h3 { margin-bottom: 16px; font-size: 15px; }
+  .proj-row { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid var(--border); }
+  .proj-row:last-child { border-bottom: none; font-weight: 700; font-size: 15px; }
+
+  /* ─── TOAST ──────────────────────────────────────────────────── */
+  #toast {
+    position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(80px);
+    background: var(--text); color: white; padding: 10px 20px; border-radius: 24px;
+    font-size: 13px; z-index: 200; transition: transform 0.25s; pointer-events: none;
+  }
+  #toast.show { transform: translateX(-50%) translateY(0); }
+
+  /* ─── MOBILE ─────────────────────────────────────────────────── */
+  @media (max-width: 700px) {
+    #sidebar { width: 56px; min-width: 56px; }
+    #sidebar .logo span:last-child, .nav-btn span:not(.nav-icon), .nav-badge,
+    .nav-section, .sidebar-footer .mode-toggle { display: none; }
+    #sidebar .logo { padding: 16px 0; text-align: center; font-size: 20px; }
+    .nav-btn { justify-content: center; padding: 12px 0; }
+    .nav-btn.active::before { display: none; }
+    #topbar { padding: 10px 14px; }
+    #topbar h1 { font-size: 14px; }
+    #statsbar { padding: 8px 14px; gap: 10px; }
+    .stat-chip { padding: 4px 8px; font-size: 11px; }
+    .week-header { grid-template-columns: 36px repeat(5, 1fr); }
+    .week-body { grid-template-columns: 36px repeat(5, 1fr); }
+    .time-label { font-size: 9px; padding: 3px 3px 0 0; }
+    :root { --slot-height: 52px; }
+    .rdv-chip { padding: 3px 5px; }
+    .rdv-chip .chip-title { font-size: 10px; }
+    .rdv-chip .chip-sub { display: none; }
+    .panel { padding: 20px; max-width: 100%; }
+    #content { overflow-x: auto; }
+  }
+
+  /* ─── SCROLLBAR ──────────────────────────────────────────────── */
+  #content::-webkit-scrollbar { width: 6px; }
+  #content::-webkit-scrollbar-track { background: transparent; }
+  #content::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+  /* ─── ADD BTN (FAB) ─────────────────────────────────────────── */
+  #fab {
+    position: fixed; bottom: 24px; right: 24px; width: 52px; height: 52px;
+    border-radius: 50%; background: var(--adulte); color: white; border: none;
+    font-size: 26px; cursor: pointer; box-shadow: 0 4px 16px rgba(232,130,106,0.5);
+    z-index: 20; display: flex; align-items: center; justify-content: center;
+    transition: transform 0.15s, box-shadow 0.15s; font-family: inherit;
+  }
+  #fab:hover { transform: scale(1.08); box-shadow: 0 6px 20px rgba(232,130,106,0.6); }
+
+  .hidden { display: none !important; }
+  .flex-gap { display: flex; gap: 10px; align-items: center; }
+</style>
 </head>
 <body>
+<div id="app">
 
-<div class="container" id="app">
-    <div id="screen-welcome">
-        <h1>❤️ Test de Couple</h1>
-        <p style="color: #747d8c; font-size: 0.9rem; margin-bottom: 30px;">Répondez honnêtement aux 100 questions. Personne ne regarde !</p>
-        
-        <div style="text-align: left;">
-            <label style="font-weight: bold; color: var(--text); font-size: 0.9rem;">Votre Prénom :</label>
-            <input type="text" id="playerName" placeholder="Ex: Alex">
-        </div>
-
-        <button class="btn" onclick="startQuiz('Elle')">Je suis Elle 👩</button>
-        <button class="btn btn-outline" onclick="startQuiz('Lui')">Je suis Lui 👨</button>
+  <!-- SIDEBAR -->
+  <aside id="sidebar">
+    <div class="logo">🧠 <span>Psy</span>Agenda</div>
+    <div class="nav-section">Semaines Type</div>
+    <div id="nav-weeks-list"></div>
+    <div class="nav-btn" onclick="showWeekManager()"><span class="nav-icon">＋</span><span>Gérer les semaines</span></div>
+    <div class="nav-divider"></div>
+    <div class="nav-section">Vues</div>
+    <div class="nav-btn" id="nav-month" onclick="switchView('month')"><span class="nav-icon">📊</span><span>Récapitulatif</span></div>
+    <div class="nav-divider"></div>
+    <div class="nav-section">Réglages</div>
+    <div class="nav-btn" onclick="showSettings()"><span class="nav-icon">⚙️</span><span>Tarifs & Config</span></div>
+    <div class="nav-btn" onclick="showGithubSettings()"><span class="nav-icon">☁️</span><span>Sync GitHub</span></div>
+    <div class="sidebar-footer">
+      <div id="sync-status" class="sync-status"><span class="sync-dot" id="sync-dot"></span><span id="sync-label">Non configuré</span></div>
     </div>
+  </aside>
 
-    <div id="screen-question" class="hidden">
-        <div class="progress-bar"><div class="progress" id="progress"></div></div>
-        <p id="question-counter" style="color: #a4b0be; font-size: 0.8rem; font-weight: bold; margin: 0 0 5px 0; text-transform: uppercase;"></p>
-        <h2 id="question-text">Question</h2>
-        <div class="options">
-            <button class="option-btn" onclick="answer(1)">1 - Pas du tout d'accord</button>
-            <button class="option-btn" onclick="answer(2)">2 - Plutôt pas d'accord</button>
-            <button class="option-btn" onclick="answer(3)">3 - Neutre / Ça dépend</button>
-            <button class="option-btn" onclick="answer(4)">4 - Plutôt d'accord</button>
-            <button class="option-btn" onclick="answer(5)">5 - Tout à fait d'accord</button>
-        </div>
+  <!-- MAIN -->
+  <main id="main">
+    <div id="topbar">
+      <h1 id="topbar-title">Semaine type <small id="topbar-sub"></small></h1>
+      <div class="flex-gap" style="margin-left:auto; gap:8px;">
+        <button class="btn btn-sm" onclick="showWeekManager()">📋 Semaines</button>
+        <button class="btn btn-sm btn-primary" onclick="openAddRdv()">＋ RDV</button>
+        <button class="btn btn-sm" onclick="syncToGithub()" title="Sauvegarder">☁️</button>
+      </div>
     </div>
+    <div id="statsbar"></div>
+    <div id="content">
+      <div id="week-view"></div>
+      <div id="month-view" class="hidden"></div>
+    </div>
+  </main>
+</div>
 
-    <div id="screen-export" class="hidden">
-        <h1>🎉 C'est fini !</h1>
-        <p>Génial, vos réponses sont enregistrées. Copiez le code ci-dessous ou téléchargez le fichier, et envoyez-le à l'IA pour l'analyse croisée !</p>
-        
-        <textarea id="export-data" class="export-box" readonly></textarea>
-        
-        <button class="btn" onclick="copyData()" id="copy-btn">📋 Copier mes réponses</button>
-        <button class="btn btn-outline" onclick="downloadData()">💾 Télécharger le fichier</button>
+<!-- FAB -->
+<button id="fab" onclick="openAddRdv()" title="Ajouter un RDV">＋</button>
+
+<!-- TOAST -->
+<div id="toast"></div>
+
+<!-- MODAL: ADD/EDIT RDV -->
+<div class="overlay hidden" id="rdv-modal">
+  <div class="panel" style="position:relative">
+    <button class="panel-close" onclick="closeRdvModal()">✕</button>
+    <h2 id="rdv-modal-title">Nouveau RDV</h2>
+    <div class="form-row">
+      <label>Type de rendez-vous</label>
+      <div class="type-picker">
+        <div class="type-opt" data-type="adulte" onclick="selectType('adulte')"><div class="type-icon">👤</div>Adulte<br><small>60 €</small></div>
+        <div class="type-opt" data-type="ado" onclick="selectType('ado')"><div class="type-icon">🧑</div>Ado<br><small>55 €</small></div>
+        <div class="type-opt" data-type="enfant" onclick="selectType('enfant')"><div class="type-icon">👧</div>Enfant<br><small>55 €</small></div>
+        <div class="type-opt" data-type="icv" onclick="selectType('icv')"><div class="type-icon">🧠</div>ICV<br><small>75 €</small></div>
+        <div class="type-opt" data-type="perso" onclick="selectType('perso')"><div class="type-icon">🏠</div>Perso<br><small></small></div>
+        <div class="type-opt" data-type="sport" onclick="selectType('sport')"><div class="type-icon">🏃</div>Sport<br><small></small></div>
+      </div>
     </div>
+    <div class="form-row">
+      <label>Étiquette (optionnel)</label>
+      <input type="text" id="rdv-label" placeholder="Ex: Mme Martin, Yoga…">
+    </div>
+    <div class="form-row">
+      <label>Durée</label>
+      <div class="duration-row" id="dur-row">
+        <button class="dur-btn" data-dur="60" onclick="selectDur(60)">1h</button>
+        <button class="dur-btn" data-dur="90" onclick="selectDur(90)">1h30</button>
+        <button class="dur-btn" data-dur="120" onclick="selectDur(120)">2h</button>
+        <button class="dur-btn" data-dur="30" onclick="selectDur(30)">30m</button>
+      </div>
+    </div>
+    <div class="form-row">
+      <label>Jour & Heure</label>
+      <div class="flex-gap">
+        <select id="rdv-day" style="flex:1">
+          <option value="0">Lundi</option>
+          <option value="1">Mardi</option>
+          <option value="2">Mercredi</option>
+          <option value="3">Jeudi</option>
+          <option value="4">Vendredi</option>
+        </select>
+        <select id="rdv-hour" style="flex:1"></select>
+      </div>
+    </div>
+    <div class="btn-row">
+      <button class="btn btn-danger btn-sm hidden" id="rdv-delete-btn" onclick="deleteCurrentRdv()">Supprimer</button>
+      <button class="btn" onclick="closeRdvModal()">Annuler</button>
+      <button class="btn btn-primary" onclick="saveRdv()">Enregistrer</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: WEEK MANAGER -->
+<div class="overlay hidden" id="week-modal">
+  <div class="panel" style="position:relative; max-width:480px;">
+    <button class="panel-close" onclick="closeWeekModal()">✕</button>
+    <h2>Gérer les semaines type</h2>
+    <div id="week-modal-list" class="week-list"></div>
+    <div style="display:flex;gap:10px;align-items:center;margin-top:8px;">
+      <input type="text" id="new-week-name" placeholder="Nom de la semaine…" style="flex:1;padding:9px 12px;border:1.5px solid var(--border);border-radius:6px;font-family:inherit;font-size:14px;">
+      <select id="new-week-ab" style="padding:9px 12px;border:1.5px solid var(--border);border-radius:6px;font-family:inherit;font-size:14px;">
+        <option value="">—</option><option value="A">A</option><option value="B">B</option>
+      </select>
+      <button class="btn btn-primary" onclick="addWeek()">Ajouter</button>
+    </div>
+    <p style="font-size:12px;color:var(--text-muted);margin-top:4px;">💡 Les semaines A/B permettent d'alterner 2 plannings et d'extrapoler le mensuel.</p>
+  </div>
+</div>
+
+<!-- MODAL: SETTINGS -->
+<div class="overlay hidden" id="settings-modal">
+  <div class="panel" style="position:relative; max-width:400px;">
+    <button class="panel-close" onclick="closeSettings()">✕</button>
+    <h2>Tarifs & Configuration</h2>
+    <div class="tarif-grid">
+      <label>Consultation Adulte (€)</label>
+      <input type="number" id="t-adulte" style="width:80px;padding:7px;border:1.5px solid var(--border);border-radius:5px;text-align:right;font-family:inherit;">
+      <label>Consultation Ado (€)</label>
+      <input type="number" id="t-ado" style="width:80px;padding:7px;border:1.5px solid var(--border);border-radius:5px;text-align:right;font-family:inherit;">
+      <label>Consultation Enfant (€)</label>
+      <input type="number" id="t-enfant" style="width:80px;padding:7px;border:1.5px solid var(--border);border-radius:5px;text-align:right;font-family:inherit;">
+      <label>Séance ICV (€)</label>
+      <input type="number" id="t-icv" style="width:80px;padding:7px;border:1.5px solid var(--border);border-radius:5px;text-align:right;font-family:inherit;">
+    </div>
+    <div style="margin-top:12px;">
+      <label style="font-size:12px;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:.5px;display:block;margin-bottom:6px;">Plage horaire</label>
+      <div class="flex-gap">
+        <select id="hour-start" style="flex:1;padding:9px;border:1.5px solid var(--border);border-radius:6px;font-family:inherit;"></select>
+        <span style="color:var(--text-muted)">→</span>
+        <select id="hour-end" style="flex:1;padding:9px;border:1.5px solid var(--border);border-radius:6px;font-family:inherit;"></select>
+      </div>
+    </div>
+    <div class="btn-row" style="margin-top:8px;">
+      <button class="btn" onclick="closeSettings()">Annuler</button>
+      <button class="btn btn-primary" onclick="saveSettings()">Enregistrer</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: GITHUB -->
+<div class="overlay hidden" id="github-modal">
+  <div class="panel" style="position:relative; max-width:420px;">
+    <button class="panel-close" onclick="closeGithubSettings()">✕</button>
+    <h2>Synchronisation GitHub</h2>
+    <p style="font-size:13px;color:var(--text-muted);line-height:1.6;">Les données sont sauvegardées dans un <strong>GitHub Gist</strong> privé. Créez un token sur <a href="https://github.com/settings/tokens" target="_blank" style="color:var(--adulte)">github.com/settings/tokens</a> avec la permission <code>gist</code>.</p>
+    <div class="form-row">
+      <label>Token GitHub (Personal Access Token)</label>
+      <input type="password" id="gh-token" placeholder="ghp_xxxxxxxxxxxx">
+    </div>
+    <div class="form-row">
+      <label>Gist ID (laissez vide pour en créer un nouveau)</label>
+      <input type="text" id="gh-gist-id" placeholder="Créé automatiquement">
+    </div>
+    <div class="btn-row">
+      <button class="btn" onclick="closeGithubSettings()">Annuler</button>
+      <button class="btn btn-primary" onclick="saveGithubSettings()">Enregistrer & Tester</button>
+    </div>
+    <p style="font-size:11px;color:var(--text-muted);">⚠️ Le token est stocké localement dans votre navigateur (localStorage). Ne partagez pas cette page.</p>
+  </div>
 </div>
 
 <script>
-    const rawQuestions = [
-        "J'aime que la maison soit toujours parfaitement rangée.", "Je préfère planifier mes week-ends à l'avance plutôt que d'improviser.", "La répartition des tâches ménagères doit être du 50/50 strict.", "J'ai besoin d'avoir des moments de solitude réguliers.", "Je préfère les soirées tranquilles à la maison plutôt que sortir en boîte.", "Le petit-déjeuner au lit est quelque chose que j'adore.", "Je suis plutôt du matin que du soir.", "Laver la vaisselle immédiatement après manger est important pour moi.", "J'aime inviter des amis à la maison souvent.", "Avoir des animaux de compagnie dans la maison est indispensable.", "Je préfère cuisiner plutôt que commander à manger.", "Passer du temps sur les réseaux sociaux tous les jours me détend.", "J'aime qu'on s'endorme en même temps le soir.", "Je suis très ponctuel(le) aux rendez-vous.", "Regarder une série ensemble est un vrai moment de couple.", "Je laisse souvent traîner mes affaires.", "Je préfère prendre des douches rapides que de longs bains.", "Le bricolage et les réparations à la maison, c'est mon truc.", "J'ai du mal à me lever sans avoir mis plusieurs alarmes.", "La température de la chambre doit être plutôt fraîche pour dormir.",
-        "Je veux me marier un jour.", "Je souhaite avoir des enfants (ou d'autres enfants si j'en ai déjà).", "Je suis prêt(e) à déménager à l'étranger pour la carrière de mon partenaire.", "Acheter une maison est un de mes objectifs principaux.", "Je préfère investir dans des voyages plutôt que dans du matériel.", "Je me vois bien vieillir à la campagne plutôt qu'en ville.", "La réussite professionnelle est plus importante que le temps libre.", "Je veux changer de métier ou reprendre des études un jour.", "Avoir une résidence secondaire serait un rêve.", "Je pense qu'il faut se concentrer sur le présent, l'avenir on verra.", "L'adoption est une option que j'envisagerais.", "Je suis très attaché(e) à la ville où je vis actuellement.", "Faire le tour du monde un jour fait partie de ma bucket list.", "Je prévois de prendre ma retraite le plus tôt possible.", "La stabilité de l'emploi est essentielle pour moi.", "Je suis prêt(e) à faire de gros sacrifices pour réaliser nos rêves.", "Je souhaite que l'on monte un projet ou une entreprise ensemble.", "Je pense souvent à comment sera notre vie dans 10 ans.", "Le mariage est pour moi le symbole ultime de l'engagement.", "Garder une part d'indépendance totale dans le futur est vital.",
-        "Je suis quelqu'un d'économe, je mets de côté tous les mois.", "Nous devrions avoir un compte bancaire commun pour tout partager.", "Je n'ai aucun problème à parler de mon salaire et de mes dettes.", "Acheter des vêtements ou des objets de marque est important pour moi.", "Je pense qu'il faut profiter de son argent aujourd'hui au lieu de tout épargner.", "Le partenaire qui gagne le plus devrait payer plus pour les dépenses communes.", "Emprunter de l'argent à la famille est inacceptable pour moi.", "Je tiens un budget strict de mes dépenses.", "Faire des cadeaux chers est une belle preuve d'amour.", "Je préfère les vacances de luxe aux vacances en sac à dos.", "L'argent est souvent une source de stress pour moi.", "Je suis prêt(e) à soutenir financièrement mon partenaire s'il reprend ses études.", "Les investissements risqués (crypto, bourse) m'intéressent.", "J'ai du mal à me contrôler face à un achat impulsif.", "Les dettes (crédits à la consommation) ne me font pas peur.", "C'est normal de cacher quelques petits achats à son partenaire.", "Un contrat de mariage (séparation de biens) est une bonne chose.", "L'argent ne fait pas le bonheur.", "Je préfère payer le restaurant lors d'un rendez-vous.", "L'éducation financière des enfants est une priorité absolue.",
-        "La religion ou la spiritualité a une place importante dans ma vie.", "Mes convictions politiques sont très ancrées.", "Je pourrais être avec quelqu'un qui a des opinions politiques opposées aux miennes.", "La famille passe toujours avant les amis.", "Le respect des traditions familiales est essentiel à mes yeux.", "Je suis très sensible à la cause écologique au quotidien.", "Je pardonne facilement une trahison.", "L'honnêteté est plus importante que la politesse pour éviter de blesser.", "Garder le contact avec ses ex est tout à fait sain et normal.", "Je crois en la notion d'âme sœur.", "L'éducation stricte est la meilleure pour les enfants.", "Les rôles traditionnels homme/femme dans le couple me rassurent.", "Je suis tolérant(e) face aux opinions qui me choquent.", "Aider les autres (bénévolat, charité) est un devoir.", "Je crois au karma : on récolte ce que l'on sème.", "Mentir par omission est quand même un mensonge.", "Je ne garde pas de rancune après une dispute.", "Le succès se mesure par l'impact qu'on a sur les autres, pas par l'argent.", "La politesse envers les inconnus est un critère pour juger quelqu'un.", "Faire des compromis sur ses valeurs fondamentales est parfois nécessaire en couple.",
-        "Les petits gestes d'affection en public (se tenir la main, s'embrasser) sont importants.", "Pour moi, la communication sexuelle doit être ouverte et sans tabou.", "Faire l'amour plusieurs fois par semaine est l'idéal.", "Les mots doux et les compliments me touchent plus que les cadeaux physiques.", "Je suis très câlin(e) au quotidien.", "Je préfère prendre l'initiative des moments intimes.", "Essayer de nouvelles choses au lit est excitant.", "L'intimité émotionnelle (se confier) est plus importante que l'intimité physique.", "Je suis souvent jaloux/jalouse.", "Avoir des secrets pour son partenaire est normal.", "Je me sens aimé(e) quand mon partenaire me rend service (faire le plein, cuisiner).", "Faire chambre à part occasionnellement ne me dérange pas.", "La routine dans l'intimité finit par tuer le désir.", "Je suis à l'aise avec mon corps.", "Regarder des films pour adultes dans le couple est acceptable.", "Passer du temps de qualité à discuter chaque soir est mon langage de l'amour.", "Je dis 'Je t'aime' très facilement.", "Le contact physique constant (être collés sur le canapé) m'étouffe un peu.", "Une baisse de désir passagère est normale et ne me stresse pas.", "La confiance absolue est la base de mon épanouissement sexuel."
-    ];
+// ═══════════════════════════════════════════════════════════
+//  STATE
+// ═══════════════════════════════════════════════════════════
+let state = {
+  weeks: [],
+  currentWeekId: null,
+  tarifs: { adulte: 60, ado: 55, enfant: 55, icv: 75 },
+  hourStart: 7,
+  hourEnd: 21
+};
 
-    let currentQuestion = 0;
-    let myAnswers = [];
-    let myName = "";
-    let myRole = "";
+let rdvModal = { open: false, editId: null, day: null, hour: null, type: 'adulte', dur: 60 };
+let dragState = { dragging: false, rdvId: null, weekId: null };
+let currentView = 'week';
 
-    function startQuiz(role) {
-        let nameInput = document.getElementById('playerName').value.trim();
-        if(!nameInput) {
-            alert("S'il te plaît, entre ton prénom avant de commencer !");
-            return;
-        }
-        myName = nameInput;
-        myRole = role;
-        
-        document.getElementById('screen-welcome').classList.add('hidden');
-        document.getElementById('screen-question').classList.remove('hidden');
-        
-        // Scroll en haut au cas où
-        window.scrollTo(0, 0);
-        showQuestion();
+const DAYS = ['Lundi','Mardi','Mercredi','Jeudi','Vendredi'];
+const TYPE_LABELS = { adulte:'Adulte', ado:'Ado', enfant:'Enfant', icv:'ICV', perso:'Perso', sport:'Sport' };
+const TYPE_ICONS = { adulte:'👤', ado:'🧑', enfant:'👧', icv:'🧠', perso:'🏠', sport:'🏃' };
+
+// ═══════════════════════════════════════════════════════════
+//  INIT
+// ═══════════════════════════════════════════════════════════
+function init() {
+  loadFromLocalStorage();
+  if (state.weeks.length === 0) {
+    addDefaultWeek();
+  }
+  if (!state.currentWeekId && state.weeks.length > 0) {
+    state.currentWeekId = state.weeks[0].id;
+  }
+  buildHourSelects();
+  renderAll();
+}
+
+function addDefaultWeek() {
+  const w = { id: uid(), name: 'Semaine type', ab: '', rdvs: [] };
+  state.weeks.push(w);
+  state.currentWeekId = w.id;
+}
+
+function uid() { return Date.now().toString(36) + Math.random().toString(36).slice(2, 7); }
+
+// ═══════════════════════════════════════════════════════════
+//  PERSISTENCE
+// ═══════════════════════════════════════════════════════════
+function saveToLocalStorage() {
+  localStorage.setItem('psyagenda_state', JSON.stringify(state));
+}
+function loadFromLocalStorage() {
+  const raw = localStorage.getItem('psyagenda_state');
+  if (raw) {
+    try { Object.assign(state, JSON.parse(raw)); } catch(e) {}
+  }
+}
+function getGithubCreds() {
+  return {
+    token: localStorage.getItem('gh_token') || '',
+    gistId: localStorage.getItem('gh_gist_id') || ''
+  };
+}
+
+// ═══════════════════════════════════════════════════════════
+//  GITHUB SYNC
+// ═══════════════════════════════════════════════════════════
+async function syncToGithub() {
+  const { token, gistId } = getGithubCreds();
+  if (!token) { showToast('⚙️ Configurez d\'abord la sync GitHub'); showGithubSettings(); return; }
+  setSyncStatus('loading', 'Sauvegarde…');
+  const content = JSON.stringify(state, null, 2);
+  try {
+    let resp;
+    if (gistId) {
+      resp = await fetch(`https://api.github.com/gists/${gistId}`, {
+        method: 'PATCH',
+        headers: { Authorization: `token ${token}`, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ files: { 'psyagenda.json': { content } } })
+      });
+    } else {
+      resp = await fetch('https://api.github.com/gists', {
+        method: 'POST',
+        headers: { Authorization: `token ${token}`, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ description: 'PsyAgenda Data', public: false, files: { 'psyagenda.json': { content } } })
+      });
+      if (resp.ok) {
+        const data = await resp.json();
+        localStorage.setItem('gh_gist_id', data.id);
+      }
     }
+    if (resp.ok) { setSyncStatus('ok', 'Synchronisé'); showToast('✅ Sauvegardé sur GitHub'); }
+    else { setSyncStatus('error', 'Erreur'); showToast('❌ Erreur GitHub: ' + resp.status); }
+  } catch(e) { setSyncStatus('error', 'Hors ligne'); showToast('❌ Connexion impossible'); }
+}
 
-    function showQuestion() {
-        document.getElementById('question-counter').innerText = `Question ${currentQuestion + 1} / 100`;
-        document.getElementById('question-text').innerText = rawQuestions[currentQuestion];
-        
-        const progress = (currentQuestion / 100) * 100;
-        document.getElementById('progress').style.width = progress + '%';
+async function loadFromGithub() {
+  const { token, gistId } = getGithubCreds();
+  if (!token || !gistId) return;
+  setSyncStatus('loading', 'Chargement…');
+  try {
+    const resp = await fetch(`https://api.github.com/gists/${gistId}`, {
+      headers: { Authorization: `token ${token}` }
+    });
+    if (resp.ok) {
+      const data = await resp.json();
+      const content = data.files['psyagenda.json']?.content;
+      if (content) {
+        Object.assign(state, JSON.parse(content));
+        saveToLocalStorage();
+        renderAll();
+        setSyncStatus('ok', 'Synchronisé');
+        showToast('✅ Données chargées depuis GitHub');
+      }
+    } else { setSyncStatus('error', 'Erreur'); }
+  } catch(e) { setSyncStatus('error', 'Hors ligne'); }
+}
+
+function setSyncStatus(type, label) {
+  const dot = document.getElementById('sync-dot');
+  const lbl = document.getElementById('sync-label');
+  dot.className = 'sync-dot ' + type;
+  lbl.textContent = label;
+}
+
+// ═══════════════════════════════════════════════════════════
+//  RENDER ALL
+// ═══════════════════════════════════════════════════════════
+function renderAll() {
+  renderSidebarWeeks();
+  renderTopBar();
+  if (currentView === 'week') renderWeekView();
+  else renderMonthView();
+  renderStatsBar();
+}
+
+function renderSidebarWeeks() {
+  const el = document.getElementById('nav-weeks-list');
+  el.innerHTML = state.weeks.map(w => `
+    <div class="nav-btn ${w.id === state.currentWeekId ? 'active' : ''}" onclick="selectWeek('${w.id}')">
+      <span class="nav-icon">${w.ab ? w.ab : '📅'}</span>
+      <span>${w.name}</span>
+      ${w.ab ? `<span class="nav-badge">${w.ab}</span>` : ''}
+    </div>
+  `).join('');
+}
+
+function renderTopBar() {
+  const w = currentWeek();
+  document.getElementById('topbar-title').innerHTML = w ? `${w.name} <small>${w.ab ? 'Semaine ' + w.ab : ''}</small>` : 'PsyAgenda';
+}
+
+// ═══════════════════════════════════════════════════════════
+//  WEEK VIEW
+// ═══════════════════════════════════════════════════════════
+function renderWeekView() {
+  const view = document.getElementById('week-view');
+  const w = currentWeek();
+  if (!w) { view.innerHTML = '<p style="padding:40px;color:var(--text-muted);text-align:center;">Créez une semaine type pour commencer.</p>'; return; }
+
+  const hs = state.hourStart, he = state.hourEnd;
+  const hours = [];
+  for (let h = hs; h < he; h++) hours.push(h);
+
+  // HEADER
+  let html = `<div class="week-header">
+    <div class="time-gutter"></div>
+    ${DAYS.map(d => `<div class="day-head">${d}</div>`).join('')}
+  </div>
+  <div class="week-body">
+    <div class="time-col">
+      ${hours.map(h => `<div class="time-label">${h}h</div>`).join('')}
+    </div>
+    ${[0,1,2,3,4].map(dayIdx => `
+      <div class="day-col" id="day-col-${dayIdx}">
+        ${hours.map(h => `
+          <div class="time-slot" data-day="${dayIdx}" data-hour="${h}"
+            onclick="slotClick(event,${dayIdx},${h})"
+            ondragover="dragOver(event)" ondrop="drop(event,${dayIdx},${h})"
+            ondragleave="dragLeave(event)">
+          </div>
+        `).join('')}
+      </div>
+    `).join('')}
+  </div>`;
+
+  view.innerHTML = html;
+  view.style.display = 'flex';
+  view.style.flexDirection = 'column';
+  view.style.minHeight = (hours.length * parseInt(getComputedStyle(document.documentElement).getPropertyValue('--slot-height'))) + 'px';
+
+  // Place RDV chips
+  if (w.rdvs) {
+    w.rdvs.forEach(rdv => placeRdvChip(rdv));
+  }
+}
+
+function placeRdvChip(rdv) {
+  const col = document.getElementById(`day-col-${rdv.day}`);
+  if (!col) return;
+  const slotH = parseInt(getComputedStyle(document.documentElement).getPropertyValue('--slot-height')) || 60;
+  const hs = state.hourStart;
+  const top = (rdv.hour - hs) * slotH;
+  const durH = (rdv.dur || 60) / 60;
+  const height = Math.max(durH * slotH - 4, 22);
+
+  const chip = document.createElement('div');
+  chip.className = 'rdv-chip';
+  chip.dataset.type = rdv.type;
+  chip.dataset.id = rdv.id;
+  chip.style.top = top + 'px';
+  chip.style.height = height + 'px';
+  chip.draggable = true;
+
+  const label = rdv.label || TYPE_LABELS[rdv.type];
+  const durLabel = rdv.dur === 60 ? '1h' : rdv.dur === 90 ? '1h30' : rdv.dur === 120 ? '2h' : '30m';
+  chip.innerHTML = `
+    <div class="chip-title">${TYPE_ICONS[rdv.type]} ${label}</div>
+    <div class="chip-sub">${rdv.hour}h — ${durLabel}</div>
+    <button class="chip-del" onclick="event.stopPropagation();deleteRdv('${rdv.id}')" title="Supprimer">✕</button>
+  `;
+  chip.addEventListener('click', (e) => {
+    if (e.target.classList.contains('chip-del')) return;
+    openEditRdv(rdv);
+  });
+  chip.addEventListener('dragstart', (e) => {
+    dragState = { dragging: true, rdvId: rdv.id, weekId: state.currentWeekId };
+    chip.classList.add('dragging');
+    e.dataTransfer.effectAllowed = 'move';
+    // Touch offset
+    const rect = chip.getBoundingClientRect();
+    dragState.offsetY = e.clientY - rect.top;
+  });
+  chip.addEventListener('dragend', () => { chip.classList.remove('dragging'); dragState.dragging = false; });
+
+  col.appendChild(chip);
+}
+
+// ═══════════════════════════════════════════════════════════
+//  DRAG & DROP
+// ═══════════════════════════════════════════════════════════
+function dragOver(e) {
+  if (!dragState.dragging) return;
+  e.preventDefault(); e.dataTransfer.dropEffect = 'move';
+  e.currentTarget.dataset.dropTarget = 'true';
+}
+function dragLeave(e) { e.currentTarget.dataset.dropTarget = 'false'; }
+function drop(e, day, hour) {
+  e.preventDefault();
+  e.currentTarget.dataset.dropTarget = 'false';
+  if (!dragState.rdvId) return;
+  const w = currentWeek();
+  if (!w) return;
+  const rdv = w.rdvs.find(r => r.id === dragState.rdvId);
+  if (!rdv) return;
+  rdv.day = day; rdv.hour = hour;
+  saveToLocalStorage();
+  renderWeekView();
+  renderStatsBar();
+}
+
+// ═══════════════════════════════════════════════════════════
+//  SLOT CLICK
+// ═══════════════════════════════════════════════════════════
+function slotClick(e, day, hour) {
+  if (e.target.classList.contains('rdv-chip') || e.target.closest('.rdv-chip')) return;
+  openAddRdv(day, hour);
+}
+
+// ═══════════════════════════════════════════════════════════
+//  STATS BAR
+// ═══════════════════════════════════════════════════════════
+function renderStatsBar() {
+  const bar = document.getElementById('statsbar');
+  const stats = computeWeekStats();
+  if (!stats) { bar.innerHTML = ''; return; }
+  const types = ['adulte','ado','enfant','icv'];
+  const colors = { adulte:'var(--adulte)', ado:'var(--ado)', enfant:'var(--enfant)', icv:'var(--icv)' };
+  const labels = { adulte:'Adultes', ado:'Ados', enfant:'Enfants', icv:'ICV' };
+
+  let totalRdv = types.reduce((s,t) => s + (stats.counts[t]||0), 0);
+  let totalEuros = types.reduce((s,t) => s + (stats.euros[t]||0), 0);
+
+  bar.innerHTML = `
+    ${types.map(t => `
+      <div class="stat-chip">
+        <span class="dot" style="background:${colors[t]}"></span>
+        ${labels[t]} : <strong>${stats.counts[t]||0}</strong>
+        <span class="euro">${stats.euros[t]||0} €</span>
+      </div>
+    `).join('')}
+    <div class="stat-sep"></div>
+    <div class="stat-chip"><strong>${totalRdv} RDV</strong></div>
+    <div class="stat-total">${totalEuros} € <span>/ semaine</span></div>
+  `;
+}
+
+function computeWeekStats() {
+  const w = currentWeek();
+  if (!w) return null;
+  const counts = {}, euros = {};
+  (w.rdvs || []).forEach(r => {
+    if (['adulte','ado','enfant','icv'].includes(r.type)) {
+      counts[r.type] = (counts[r.type]||0) + 1;
+      const tarif = state.tarifs[r.type] || 0;
+      euros[r.type] = (euros[r.type]||0) + tarif;
     }
+  });
+  return { counts, euros };
+}
 
-    function answer(val) {
-        myAnswers.push(val);
-        currentQuestion++;
+// ═══════════════════════════════════════════════════════════
+//  MONTH VIEW
+// ═══════════════════════════════════════════════════════════
+function renderMonthView() {
+  const mv = document.getElementById('month-view');
+  mv.classList.remove('hidden');
+  document.getElementById('week-view').style.display = 'none';
 
-        if(currentQuestion < 100) {
-            showQuestion();
-        } else {
-            finishQuiz();
-        }
+  const hasAB = state.weeks.some(w => w.ab === 'A') && state.weeks.some(w => w.ab === 'B');
+
+  let weekStats;
+  if (hasAB) {
+    const wA = state.weeks.find(w => w.ab === 'A');
+    const wB = state.weeks.find(w => w.ab === 'B');
+    weekStats = mergeStats(computeStatsFor(wA), computeStatsFor(wB));
+    weekStats._note = 'Moyenne semaines A+B (2 semaines sur 4)';
+  } else if (state.weeks.length > 0) {
+    const w = currentWeek() || state.weeks[0];
+    weekStats = computeStatsFor(w);
+    weekStats._note = `Basé sur : ${w.name}`;
+  }
+
+  const types = ['adulte','ado','enfant','icv'];
+  const colors = { adulte:'var(--adulte)', ado:'var(--ado)', enfant:'var(--enfant)', icv:'var(--icv)' };
+  const typeLabels = { adulte:'Adultes', ado:'Ados', enfant:'Enfants', icv:'ICV' };
+
+  const monthMult = hasAB ? 2 : 4; // A+B = 2 semaines * 2 fois = 4 sem; sinon * 4
+  let totalMonthEuros = 0;
+  const projRows = types.map(t => {
+    const count = weekStats.counts[t] || 0;
+    const monthly = hasAB ? count * 2 : count * 4;
+    const euros = monthly * (state.tarifs[t] || 0);
+    totalMonthEuros += euros;
+    return `<div class="proj-row">
+      <span><span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:${colors[t]};margin-right:6px;"></span>${typeLabels[t]}</span>
+      <span>${monthly} RDV × ${state.tarifs[t]} € = <strong>${euros} €</strong></span>
+    </div>`;
+  }).join('');
+
+  mv.innerHTML = `
+    <h2 style="margin-bottom:20px;">Récapitulatif mensuel</h2>
+    <p style="font-size:12px;color:var(--text-muted);margin-bottom:16px;">📌 ${weekStats._note}</p>
+    <div class="month-summary-grid">
+      ${types.map(t => {
+        const count = weekStats.counts[t] || 0;
+        const monthly = hasAB ? count * 2 : count * 4;
+        return `<div class="month-card" data-type="${t}">
+          <div class="mc-label">${typeLabels[t]}</div>
+          <div class="mc-count" style="color:${colors[t]}">${monthly}</div>
+          <div class="mc-sub">RDV / mois</div>
+          <div class="mc-sub" style="margin-top:4px;font-weight:600;">${monthly * (state.tarifs[t]||0)} €</div>
+        </div>`;
+      }).join('')}
+    </div>
+    <div class="month-projection">
+      <h3>Projection de chiffre d'affaires mensuel</h3>
+      ${projRows}
+      <div class="proj-row">
+        <span>💰 Total mensuel estimé</span>
+        <strong style="font-size:18px;color:var(--adulte)">${totalMonthEuros} €</strong>
+      </div>
+    </div>
+  `;
+}
+
+function computeStatsFor(w) {
+  if (!w) return { counts: {}, euros: {}, _note: '' };
+  const counts = {}, euros = {};
+  (w.rdvs || []).forEach(r => {
+    if (['adulte','ado','enfant','icv'].includes(r.type)) {
+      counts[r.type] = (counts[r.type]||0) + 1;
+      euros[r.type] = (euros[r.type]||0) + (state.tarifs[r.type]||0);
     }
+  });
+  return { counts, euros };
+}
 
-    function finishQuiz() {
-        document.getElementById('screen-question').classList.add('hidden');
-        document.getElementById('screen-export').classList.remove('hidden');
-        
-        let finalData = {
-            prenom: myName,
-            role: myRole,
-            reponses: myAnswers
-        };
-        
-        // Formater en JSON propre pour le copier/coller
-        document.getElementById('export-data').value = JSON.stringify(finalData);
-    }
+function mergeStats(a, b) {
+  const counts = {}, euros = {};
+  const types = ['adulte','ado','enfant','icv'];
+  types.forEach(t => {
+    counts[t] = (a.counts[t]||0) + (b.counts[t]||0);
+    euros[t] = (a.euros[t]||0) + (b.euros[t]||0);
+  });
+  return { counts, euros };
+}
 
-    function copyData() {
-        let textarea = document.getElementById('export-data');
-        textarea.select();
-        textarea.setSelectionRange(0, 99999); // Pour mobile
-        navigator.clipboard.writeText(textarea.value).then(() => {
-            let btn = document.getElementById('copy-btn');
-            btn.innerText = "✅ Copié !";
-            btn.style.backgroundColor = "#2ed573";
-            setTimeout(() => {
-                btn.innerText = "📋 Copier mes réponses";
-                btn.style.backgroundColor = "var(--primary)";
-            }, 2000);
-        }).catch(err => {
-            alert("Erreur lors de la copie, merci de copier le texte manuellement.");
-        });
-    }
+// ═══════════════════════════════════════════════════════════
+//  SWITCH VIEW
+// ═══════════════════════════════════════════════════════════
+function switchView(v) {
+  currentView = v;
+  if (v === 'week') {
+    document.getElementById('month-view').classList.add('hidden');
+    document.getElementById('week-view').style.display = '';
+    renderWeekView();
+  } else {
+    renderMonthView();
+  }
+  renderSidebarWeeks();
+}
 
-    function downloadData() {
-        let dataStr = document.getElementById('export-data').value;
-        let blob = new Blob([dataStr], { type: "text/plain" });
-        let url = URL.createObjectURL(blob);
-        
-        let a = document.createElement('a');
-        a.href = url;
-        a.download = `Resultats_Test_${myName}_${myRole}.txt`;
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        URL.revokeObjectURL(url);
+function selectWeek(id) {
+  state.currentWeekId = id;
+  currentView = 'week';
+  document.getElementById('month-view').classList.add('hidden');
+  saveToLocalStorage();
+  renderAll();
+}
+
+function currentWeek() { return state.weeks.find(w => w.id === state.currentWeekId) || null; }
+
+// ═══════════════════════════════════════════════════════════
+//  ADD / EDIT RDV
+// ═══════════════════════════════════════════════════════════
+function openAddRdv(day, hour) {
+  rdvModal.editId = null;
+  rdvModal.day = day !== undefined ? day : 0;
+  rdvModal.hour = hour !== undefined ? hour : state.hourStart;
+  rdvModal.type = 'adulte';
+  rdvModal.dur = 60;
+  document.getElementById('rdv-modal-title').textContent = 'Nouveau rendez-vous';
+  document.getElementById('rdv-label').value = '';
+  document.getElementById('rdv-day').value = rdvModal.day;
+  document.getElementById('rdv-hour').value = rdvModal.hour;
+  document.getElementById('rdv-delete-btn').classList.add('hidden');
+  selectType(rdvModal.type);
+  selectDur(rdvModal.dur);
+  document.getElementById('rdv-modal').classList.remove('hidden');
+}
+
+function openEditRdv(rdv) {
+  rdvModal.editId = rdv.id;
+  rdvModal.type = rdv.type;
+  rdvModal.dur = rdv.dur || 60;
+  document.getElementById('rdv-modal-title').textContent = 'Modifier le rendez-vous';
+  document.getElementById('rdv-label').value = rdv.label || '';
+  document.getElementById('rdv-day').value = rdv.day;
+  document.getElementById('rdv-hour').value = rdv.hour;
+  document.getElementById('rdv-delete-btn').classList.remove('hidden');
+  selectType(rdv.type);
+  selectDur(rdv.dur || 60);
+  document.getElementById('rdv-modal').classList.remove('hidden');
+}
+
+function closeRdvModal() { document.getElementById('rdv-modal').classList.add('hidden'); }
+
+function selectType(t) {
+  rdvModal.type = t;
+  document.querySelectorAll('.type-opt').forEach(el => el.classList.remove('selected'));
+  document.querySelector(`.type-opt[data-type="${t}"]`)?.classList.add('selected');
+  // Update price hints in modal
+  const prices = { adulte: state.tarifs.adulte, ado: state.tarifs.ado, enfant: state.tarifs.enfant, icv: state.tarifs.icv };
+  document.querySelectorAll('.type-opt').forEach(el => {
+    const p = prices[el.dataset.type];
+    const s = el.querySelector('small');
+    if (s && p !== undefined) s.textContent = p + ' €';
+  });
+}
+
+function selectDur(d) {
+  rdvModal.dur = d;
+  document.querySelectorAll('.dur-btn').forEach(el => {
+    el.classList.toggle('active', parseInt(el.dataset.dur) === d);
+  });
+}
+
+function saveRdv() {
+  const w = currentWeek();
+  if (!w) return;
+  const label = document.getElementById('rdv-label').value.trim();
+  const day = parseInt(document.getElementById('rdv-day').value);
+  const hour = parseInt(document.getElementById('rdv-hour').value);
+
+  if (rdvModal.editId) {
+    const rdv = w.rdvs.find(r => r.id === rdvModal.editId);
+    if (rdv) { rdv.type = rdvModal.type; rdv.label = label; rdv.day = day; rdv.hour = hour; rdv.dur = rdvModal.dur; }
+  } else {
+    w.rdvs.push({ id: uid(), type: rdvModal.type, label, day, hour, dur: rdvModal.dur });
+  }
+  saveToLocalStorage();
+  closeRdvModal();
+  renderWeekView();
+  renderStatsBar();
+}
+
+function deleteRdv(id) {
+  const w = currentWeek();
+  if (!w) return;
+  w.rdvs = w.rdvs.filter(r => r.id !== id);
+  saveToLocalStorage();
+  renderWeekView();
+  renderStatsBar();
+}
+
+function deleteCurrentRdv() {
+  if (!rdvModal.editId) return;
+  deleteRdv(rdvModal.editId);
+  closeRdvModal();
+}
+
+// ═══════════════════════════════════════════════════════════
+//  WEEK MANAGER
+// ═══════════════════════════════════════════════════════════
+function showWeekManager() {
+  renderWeekModal();
+  document.getElementById('week-modal').classList.remove('hidden');
+}
+function closeWeekModal() { document.getElementById('week-modal').classList.add('hidden'); }
+
+function renderWeekModal() {
+  const el = document.getElementById('week-modal-list');
+  el.innerHTML = state.weeks.map(w => `
+    <div class="week-item ${w.id === state.currentWeekId ? 'selected' : ''}" onclick="selectWeekFromModal('${w.id}')">
+      <span class="week-name">${w.name}</span>
+      ${w.ab ? `<span class="week-label ${w.ab}">Semaine ${w.ab}</span>` : '<span class="week-label">Standard</span>'}
+      <div class="week-actions" onclick="event.stopPropagation()">
+        <button class="btn btn-sm" onclick="renameWeek('${w.id}')">✏️</button>
+        ${state.weeks.length > 1 ? `<button class="btn btn-sm btn-danger" onclick="removeWeek('${w.id}')">🗑</button>` : ''}
+      </div>
+    </div>
+  `).join('');
+}
+
+function selectWeekFromModal(id) {
+  state.currentWeekId = id;
+  currentView = 'week';
+  saveToLocalStorage();
+  renderAll();
+  closeWeekModal();
+}
+
+function addWeek() {
+  const name = document.getElementById('new-week-name').value.trim() || 'Nouvelle semaine';
+  const ab = document.getElementById('new-week-ab').value;
+  const w = { id: uid(), name, ab, rdvs: [] };
+  state.weeks.push(w);
+  document.getElementById('new-week-name').value = '';
+  saveToLocalStorage();
+  renderWeekModal();
+  renderSidebarWeeks();
+}
+
+function renameWeek(id) {
+  const w = state.weeks.find(x => x.id === id);
+  if (!w) return;
+  const name = prompt('Renommer la semaine :', w.name);
+  if (name !== null && name.trim()) {
+    w.name = name.trim();
+    const ab = prompt('Type A/B (laisser vide si aucun) :', w.ab);
+    w.ab = (ab || '').trim().toUpperCase();
+    if (w.ab !== 'A' && w.ab !== 'B') w.ab = '';
+    saveToLocalStorage();
+    renderAll();
+    renderWeekModal();
+  }
+}
+
+function removeWeek(id) {
+  if (state.weeks.length <= 1) { showToast('❌ Impossible de supprimer la dernière semaine'); return; }
+  if (!confirm('Supprimer cette semaine et tous ses RDV ?')) return;
+  state.weeks = state.weeks.filter(w => w.id !== id);
+  if (state.currentWeekId === id) state.currentWeekId = state.weeks[0]?.id;
+  saveToLocalStorage();
+  renderAll();
+  renderWeekModal();
+}
+
+// ═══════════════════════════════════════════════════════════
+//  SETTINGS
+// ═══════════════════════════════════════════════════════════
+function showSettings() {
+  document.getElementById('t-adulte').value = state.tarifs.adulte;
+  document.getElementById('t-ado').value = state.tarifs.ado;
+  document.getElementById('t-enfant').value = state.tarifs.enfant;
+  document.getElementById('t-icv').value = state.tarifs.icv;
+  document.getElementById('hour-start').value = state.hourStart;
+  document.getElementById('hour-end').value = state.hourEnd;
+  document.getElementById('settings-modal').classList.remove('hidden');
+}
+function closeSettings() { document.getElementById('settings-modal').classList.add('hidden'); }
+function saveSettings() {
+  state.tarifs.adulte = parseFloat(document.getElementById('t-adulte').value) || 60;
+  state.tarifs.ado = parseFloat(document.getElementById('t-ado').value) || 55;
+  state.tarifs.enfant = parseFloat(document.getElementById('t-enfant').value) || 55;
+  state.tarifs.icv = parseFloat(document.getElementById('t-icv').value) || 75;
+  state.hourStart = parseInt(document.getElementById('hour-start').value) || 7;
+  state.hourEnd = parseInt(document.getElementById('hour-end').value) || 21;
+  saveToLocalStorage();
+  closeSettings();
+  renderAll();
+  showToast('✅ Réglages enregistrés');
+}
+
+// ═══════════════════════════════════════════════════════════
+//  GITHUB SETTINGS
+// ═══════════════════════════════════════════════════════════
+function showGithubSettings() {
+  document.getElementById('gh-token').value = localStorage.getItem('gh_token') || '';
+  document.getElementById('gh-gist-id').value = localStorage.getItem('gh_gist_id') || '';
+  document.getElementById('github-modal').classList.remove('hidden');
+}
+function closeGithubSettings() { document.getElementById('github-modal').classList.add('hidden'); }
+async function saveGithubSettings() {
+  const token = document.getElementById('gh-token').value.trim();
+  const gistId = document.getElementById('gh-gist-id').value.trim();
+  if (token) localStorage.setItem('gh_token', token);
+  if (gistId) localStorage.setItem('gh_gist_id', gistId);
+  else localStorage.removeItem('gh_gist_id');
+  closeGithubSettings();
+  await syncToGithub();
+}
+
+// ═══════════════════════════════════════════════════════════
+//  HOUR SELECTS
+// ═══════════════════════════════════════════════════════════
+function buildHourSelects() {
+  const rdvHour = document.getElementById('rdv-hour');
+  const hs = document.getElementById('hour-start');
+  const he = document.getElementById('hour-end');
+  rdvHour.innerHTML = '';
+  hs.innerHTML = '';
+  he.innerHTML = '';
+  for (let h = 6; h <= 22; h++) {
+    rdvHour.innerHTML += `<option value="${h}">${h}h00</option>`;
+    hs.innerHTML += `<option value="${h}">${h}h</option>`;
+    he.innerHTML += `<option value="${h}">${h}h</option>`;
+  }
+  rdvHour.value = state.hourStart;
+  hs.value = state.hourStart;
+  he.value = state.hourEnd;
+}
+
+// ═══════════════════════════════════════════════════════════
+//  TOAST
+// ═══════════════════════════════════════════════════════════
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2800);
+}
+
+// ═══════════════════════════════════════════════════════════
+//  TOUCH DRAG & DROP (mobile)
+// ═══════════════════════════════════════════════════════════
+let touchDrag = { active: false, el: null, rdvId: null, clone: null };
+
+document.addEventListener('touchstart', (e) => {
+  const chip = e.target.closest('.rdv-chip');
+  if (!chip || e.target.classList.contains('chip-del')) return;
+  touchDrag.rdvId = chip.dataset.id;
+  touchDrag.el = chip;
+  touchDrag.startY = e.touches[0].clientY;
+  touchDrag.startX = e.touches[0].clientX;
+}, { passive: true });
+
+document.addEventListener('touchmove', (e) => {
+  if (!touchDrag.rdvId) return;
+  const dx = Math.abs(e.touches[0].clientX - touchDrag.startX);
+  const dy = Math.abs(e.touches[0].clientY - touchDrag.startY);
+  if (!touchDrag.active && (dx > 8 || dy > 8)) {
+    touchDrag.active = true;
+    touchDrag.el.style.opacity = '0.5';
+  }
+  if (touchDrag.active) e.preventDefault();
+}, { passive: false });
+
+document.addEventListener('touchend', (e) => {
+  if (!touchDrag.active || !touchDrag.rdvId) { touchDrag = { active:false,el:null,rdvId:null }; return; }
+  const t = e.changedTouches[0];
+  const el = document.elementFromPoint(t.clientX, t.clientY);
+  const slot = el?.closest('.time-slot');
+  if (slot) {
+    const day = parseInt(slot.dataset.day);
+    const hour = parseInt(slot.dataset.hour);
+    const w = currentWeek();
+    const rdv = w?.rdvs.find(r => r.id === touchDrag.rdvId);
+    if (rdv) { rdv.day = day; rdv.hour = hour; saveToLocalStorage(); renderWeekView(); renderStatsBar(); showToast('RDV déplacé'); }
+  }
+  if (touchDrag.el) touchDrag.el.style.opacity = '';
+  touchDrag = { active:false, el:null, rdvId:null };
+});
+
+// ═══════════════════════════════════════════════════════════
+//  CLOSE MODALS ON OVERLAY CLICK
+// ═══════════════════════════════════════════════════════════
+['rdv-modal','week-modal','settings-modal','github-modal'].forEach(id => {
+  document.getElementById(id).addEventListener('click', function(e) {
+    if (e.target === this) {
+      this.classList.add('hidden');
     }
+  });
+});
+
+// ─────────────────────────────────────────────────────────────
+init();
+// Auto-load from GitHub if configured
+const { token, gistId } = getGithubCreds();
+if (token && gistId) loadFromGithub();
 </script>
 </body>
 </html>
