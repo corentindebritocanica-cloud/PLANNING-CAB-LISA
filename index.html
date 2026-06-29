@@ -426,8 +426,8 @@ let historyIndex = -1;
 const MAX_HISTORY = 50;
 
 function snapshot() {
-  const s = JSON.stringify(state);
-  // Trim future if we branched
+  // Sérialise un clone profond pour éviter les mutations par référence
+  const s = JSON.stringify(JSON.parse(JSON.stringify(state)));
   if (historyIndex < history.length - 1) history = history.slice(0, historyIndex + 1);
   history.push(s);
   if (history.length > MAX_HISTORY) history.shift();
@@ -508,8 +508,19 @@ function saveToLocalStorage() {
 function loadFromLocalStorage() {
   try {
     const raw = localStorage.getItem('psyagenda_v2') || localStorage.getItem('psyagenda_state');
-    if (raw) Object.assign(state, JSON.parse(raw));
-  } catch(e) {}
+    if (raw) {
+      const parsed = JSON.parse(raw);
+      // Remplacement complet des propriétés (évite les résidus d'anciens états)
+      Object.keys(parsed).forEach(k => { state[k] = parsed[k]; });
+      // Valeurs par défaut pour les clés manquantes
+      if (!state.weeks) state.weeks = [];
+      if (!state.currentWeekId && state.weeks.length > 0) state.currentWeekId = state.weeks[0].id;
+      if (!state.tarifs) state.tarifs = { adulte:60, ado:55, enfant:55, icv:75 };
+      if (state.hourStart === undefined) state.hourStart = 8;
+      if (state.hourEnd === undefined) state.hourEnd = 20;
+      if (state.annualConges === undefined) state.annualConges = 30;
+    }
+  } catch(e) { console.error('Erreur chargement localStorage:', e); }
 }
 function getGithubCreds() {
   return { token: localStorage.getItem('gh_token')||'', gistId: localStorage.getItem('gh_gist_id')||'' };
@@ -519,8 +530,10 @@ function getGithubCreds() {
 //  AUTO-SAVE (appelé après chaque mutation)
 // ══════════════════════════════════════════════════════════════
 function commit(toastMsg) {
-  saveToLocalStorage();
+  // IMPORTANT : snapshot() en premier (capture l'état courant),
+  // puis saveToLocalStorage() écrit ce même état dans localStorage
   snapshot();
+  saveToLocalStorage();
   if (toastMsg) showToast(toastMsg);
 }
 
